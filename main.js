@@ -1,4 +1,4 @@
-let store;
+let store = [];
 let numTimers;
 
 function getTimeToEvent(reminderDate) {
@@ -14,18 +14,23 @@ function getTimeToEvent(reminderDate) {
   return [days, hours, minutes, seconds];
 }
 
+function deleteReminder(parentID, childID) {
+  return () => {
+    const parent = document.getElementById(parentID);
+    const child = document.getElementById(childID);
+    parent.removeChild(child);
+    const storedIdx = Number(`${childID.slice(8)}`);
+    store.splice(storedIdx, 1);
+    chrome.storage.sync.set({ reminders: store }, () => console.log(`${store}`));
+    numTimers -= 1;
+  };
+}
+
 function addNewTimer(event) {
-  console.log('hello');
-
-  numTimers += 1;
-  chrome.storage.sync.set({ numTimers });
-
   event.preventDefault();
 
-  // CREATE UL LIST TAG
-  const unorderList = document.createElement('ul');
-  unorderList.classList.add('collection');
-  unorderList.classList.add('collection');
+  // GRAB UL LIST TAG
+  const unorderList = document.getElementById('listContainer');
 
   // CREATE NEW LIST TAG
   const listItem = document.createElement('li');
@@ -74,95 +79,85 @@ function addNewTimer(event) {
   // APPEND COUNTDOWN TAG TO THE DOM
   const countdown = document.createElement('div');
   countdown.classList.add('secondary-content');
-  countdown.id = `reminder${numTimers}`; // MAKE DYNAMIC
-  countdown.innerHTML = '00:00:00:00'; // LEAVE EMPTY? OR CALL FUNCTION?
+  countdown.id = `reminder${numTimers}`;
   listItem.appendChild(countdown);
 
   // CREATE NEW DELETE BUTTON
   const deleteButton = document.createElement('a');
-  deleteButton.innerHTML = 'delete';
+  deleteButton.innerHTML = 'x';
   deleteButton.classList.add('waves-effect');
   deleteButton.classList.add('waves-light');
   deleteButton.classList.add('btn');
   deleteButton.id = `delete${numTimers}`;
-  // deleteButton.addEventListener('click', deleteButton.bind());
+  deleteButton.addEventListener('click', deleteReminder(unorderList.id, listItem.id));
   listItem.appendChild(deleteButton);
 
   // APPEND NEW LIST ITEM TO THE UL
   unorderList.appendChild(listItem);
   document.getElementById('reminderList').appendChild(unorderList);
-
-  chrome.storage.sync.set({ [`reminder${numTimers}`]: { title: timerTitle, description: timerDescription, datetime: timerDatetime } }, () => {
-    console.log(`New reminder: ${timerTitle} ${timerDescription} ${timerDatetime}`);
-  });
+  store.push({ title: timerTitle, description: timerDescription, datetime: timerDatetime });
+  chrome.storage.sync.set({ reminders: store }, () => console.log(store));
+  numTimers += 1;
 }
 
 // LOOP THROUGH STORAGE
 function loadFromStorage() {
   chrome.storage.sync.get(null, (data) => {
-    console.log(data);
-    store = data;
-    const keys = Object.keys(store);
-    let counter = 0;
-    for (let i = 0; i !== keys.length; i += 1) {
-      if (keys[i] === 'numTimers') numTimers = store[keys[i]];
-      else {
-        counter += 1;
-        // CREATE UL LIST TAG
-        const unorderList = document.createElement('ul');
-        unorderList.classList.add('collection');
-        unorderList.classList.add('collection');
+    store = data.reminders || [];
+    numTimers = store.length;
+    for (let i = 0; i !== store.length; i += 1) {
+      // GRAB UL LIST TAG
+      const unorderList = document.getElementById('listContainer');
 
-        // CREATE NEW LIST TAG
-        const listItem = document.createElement('li');
-        listItem.classList.add('collection-item');
-        listItem.classList.add('avatar');
+      // CREATE NEW LIST TAG
+      const listItem = document.createElement('li');
+      listItem.id = `listItem${i}`;
+      listItem.classList.add('collection-item');
+      listItem.classList.add('avatar');
 
-        //   <i class="material-icons circle">av_timer</i>
-        const icon = document.createElement('i');
-        icon.classList.add('material-icons');
-        icon.classList.add('circle');
-        icon.innerHTML = 'av_timer';
-        listItem.appendChild(icon);
+      // CREATE NEW ICON
+      const icon = document.createElement('i');
+      icon.classList.add('material-icons');
+      icon.classList.add('circle');
+      icon.innerHTML = 'av_timer';
+      listItem.appendChild(icon);
 
-        // APPEND TITLE TO THE DOM
-        const title = document.createElement('span');
-        title.classList.add('title');
-        title.innerHTML = store[keys[i]].title;
-        listItem.appendChild(title);
+      // APPEND TITLE TO THE DOM
+      const title = document.createElement('span');
+      title.classList.add('title');
+      title.innerHTML = store[i].title;
+      listItem.appendChild(title);
 
-        // APPEND DESCRIPTION TO THE DOM
-        const description = document.createElement('p');
-        description.innerHTML = store[keys[i]].description;
-        listItem.appendChild(description);
+      // APPEND DESCRIPTION TO THE DOM
+      const description = document.createElement('p');
+      description.innerHTML = store[i].description;
+      listItem.appendChild(description);
 
-        // APPEND TARGET DATETIME TO THE DOM
-        const datetime = document.createElement('p');
-        datetime.innerHTML = store[keys[i]].datetime;
-        datetime.id = `target${counter}`;
-        listItem.appendChild(datetime);
+      // APPEND TARGET DATETIME TO THE DOM
+      const datetime = document.createElement('p');
+      datetime.innerHTML = store[i].datetime;
+      datetime.id = `target${i}`;
+      listItem.appendChild(datetime);
 
-        // APPEND COUNTDOWN TO THE DOM
-        const countdown = document.createElement('div');
-        countdown.classList.add('secondary-content');
-        countdown.id = `reminder${counter}`; // MAKE DYNAMIC
-        countdown.innerHTML = '00:00:00:0'; // LEAVE EMPTY? OR CALL FUNCTION?
-        listItem.appendChild(countdown);
+      // APPEND COUNTDOWN TO THE DOM
+      const countdown = document.createElement('div');
+      countdown.classList.add('secondary-content');
+      countdown.id = `reminder${i}`;
+      listItem.appendChild(countdown);
 
-        // CREATE NEW DELETE BUTTON
-        const deleteButton = document.createElement('a');
-        deleteButton.innerHTML = 'delete';
-        deleteButton.classList.add('waves-effect');
-        deleteButton.classList.add('waves-light');
-        deleteButton.classList.add('btn');
-        deleteButton.id = `delete${counter}`;
-        listItem.appendChild(deleteButton);
+      // CREATE NEW DELETE BUTTON
+      const deleteButton = document.createElement('a');
+      deleteButton.innerHTML = 'x';
+      deleteButton.classList.add('waves-effect');
+      deleteButton.classList.add('waves-light');
+      deleteButton.classList.add('btn');
+      deleteButton.id = `delete${i}`;
+      deleteButton.addEventListener('click', deleteReminder(unorderList.id, listItem.id));
+      listItem.appendChild(deleteButton);
 
-        unorderList.appendChild(listItem);
-        document.getElementById('reminderList').appendChild(unorderList);
-      }
+      unorderList.appendChild(listItem);
+      document.getElementById('reminderList').appendChild(unorderList);
     }
-    if (numTimers === undefined) numTimers = 0;
   });
 }
 
@@ -188,21 +183,15 @@ function timePicker() {
 // Update timer
 function updateTimer() {
   setInterval(() => {
-    for (let i = 0; i !== numTimers; i += 1) {
-      const curCountdown = document.getElementById(`reminder${i + 1}`);
-      const curTarget = document.getElementById(`target${i + 1}`);
+    for (let i = 0; i !== store.length; i += 1) {
+      const curCountdown = document.getElementById([`reminder${i}`]);
+      const curTarget = document.getElementById([`target${i}`]);
       const curTimeLeft = getTimeToEvent(new Date(curTarget.innerHTML));
-      if (JSON.stringify(curTimeLeft) === JSON.stringify([0, 0, 0, 0])) {
-        alert('Time to PARTAAAY');
-      }
+      if (JSON.stringify(curTimeLeft) === JSON.stringify([0, 0, 0, 0])) alert('Time to PARTAAAY');
       if (curTimeLeft[0] >= 0) curCountdown.innerHTML = `${curTimeLeft[0]}:${curTimeLeft[1]}:${curTimeLeft[2]}:${curTimeLeft[3]}`;
     }
   }, 1000);
 }
-
-/* function deleteReminder() {
-
-} */
 
 const form = document.getElementById('form');
 form.addEventListener('submit', addNewTimer);
