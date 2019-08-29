@@ -1,12 +1,13 @@
-<!-- =================================
-Simple Greeting Dashboard
-================================= //-->
 <!DOCTYPE html>
 <html>
 <head>
   <meta charset="utf-8" />
-  <title>Simple Greeting Dashboard</title>
+  <meta http-equiv="Content-Security-Policy" content="default-src *;">
+
+  <title>Timer</title>
   <link rel="stylesheet" type="text/css" media="screen" href="main.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+
 </head>
 <body>
 
@@ -22,17 +23,34 @@ Simple Greeting Dashboard
         <input type="text" id="description" name="description"><br>
       </div>
       <div>
-        <label>Enter a date and time:</label>
-        <input id="datetime" type="datetime-local" name="datetime" value=""><br>
+        <label>Enter a date:</label>
+        <input type="text" class="datepicker" id="date">
+      </div>
+      <div>
+        <label>Enter a time:</label>
+        <input type="text" class="timepicker" id="time">
       </div>
       <div class="button">
-        <button type="submit">Set your reminder</button>
+        <button class="btn waves-effect waves-light" type="submit" id="submit">
+          Set your reminder
+        </button>
       </div>
+
     </form>
+
+    <div id="reminderList">
+    </div>
+
 
   </div>
 
    <!-- My code will go here -->
+   <!-- <script src="main.js"></script> -->
+   <!-- <script type="text/javascript" src="materialize.min.js"></script> -->
    <script src="main.js"></script>
+   <script type="text/javascript" src="materialize.min.js"></script>
+
+
+
 </body>
 </html>
