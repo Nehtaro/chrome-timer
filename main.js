@@ -29,13 +29,16 @@ function addNewTimer(event) {
 
   // CREATE NEW LIST TAG
   const listItem = document.createElement('li');
+  listItem.id = `listItem${numTimers}`;
   listItem.classList.add('collection-item');
   listItem.classList.add('avatar');
 
-  //   <i class="material-icons circle">av_timer</i>
-  const deleteButton = document.createElement('button');
-  deleteButton.innerHTML = 'delete';
-  listItem.appendChild(deleteButton);
+  // CREATE NEW ICON
+  const icon = document.createElement('i');
+  icon.classList.add('material-icons');
+  icon.classList.add('circle');
+  icon.innerHTML = 'av_timer';
+  listItem.appendChild(icon);
 
   // APPEND TITLE TO THE DOM
   const timerTitle = document.getElementById('title').value;
@@ -75,16 +78,26 @@ function addNewTimer(event) {
   countdown.innerHTML = '00:00:00:00'; // LEAVE EMPTY? OR CALL FUNCTION?
   listItem.appendChild(countdown);
 
+  // CREATE NEW DELETE BUTTON
+  const deleteButton = document.createElement('a');
+  deleteButton.innerHTML = 'delete';
+  deleteButton.classList.add('waves-effect');
+  deleteButton.classList.add('waves-light');
+  deleteButton.classList.add('btn');
+  deleteButton.id = `delete${numTimers}`;
+  // deleteButton.addEventListener('click', deleteButton.bind());
+  listItem.appendChild(deleteButton);
+
   // APPEND NEW LIST ITEM TO THE UL
-  unorderList.appendChild(listItem)
+  unorderList.appendChild(listItem);
   document.getElementById('reminderList').appendChild(unorderList);
 
-  chrome.storage.sync.set({ [`reminder${numTimers}`]: { title: timerTitle, description: timerDescription, datetime: timerDatetime } }, (reminder) => {
+  chrome.storage.sync.set({ [`reminder${numTimers}`]: { title: timerTitle, description: timerDescription, datetime: timerDatetime } }, () => {
     console.log(`New reminder: ${timerTitle} ${timerDescription} ${timerDatetime}`);
   });
 }
 
-/// LOOP THROUGH STORAGE
+// LOOP THROUGH STORAGE
 function loadFromStorage() {
   chrome.storage.sync.get(null, (data) => {
     console.log(data);
@@ -136,35 +149,43 @@ function loadFromStorage() {
         countdown.innerHTML = '00:00:00:0'; // LEAVE EMPTY? OR CALL FUNCTION?
         listItem.appendChild(countdown);
 
-        unorderList.appendChild(listItem)
+        // CREATE NEW DELETE BUTTON
+        const deleteButton = document.createElement('a');
+        deleteButton.innerHTML = 'delete';
+        deleteButton.classList.add('waves-effect');
+        deleteButton.classList.add('waves-light');
+        deleteButton.classList.add('btn');
+        deleteButton.id = `delete${counter}`;
+        listItem.appendChild(deleteButton);
+
+        unorderList.appendChild(listItem);
         document.getElementById('reminderList').appendChild(unorderList);
-        
       }
     }
     if (numTimers === undefined) numTimers = 0;
   });
 }
 
-/// DATEPICKER
+// DATEPICKER
 function datePicker() {
-  var options = {
+  const options = {
     minDate: new Date(),
-    format: 'mmmm dd, yyyy'
+    format: 'mmmm dd, yyyy',
   };
-  var elems = document.querySelectorAll('.datepicker');
-  var instances = M.Datepicker.init(elems, options);
+  const elems = document.querySelectorAll('.datepicker');
+  const instances = M.Datepicker.init(elems, options);
 }
 
-/// TIMEPICKER
+// TIMEPICKER
 function timePicker() {
-  var options = {
-    twelveHour: false
-  }
-  var elems = document.querySelectorAll('.timepicker');
-  var instances = M.Timepicker.init(elems, options);
+  const options = {
+    twelveHour: false,
+  };
+  const elems = document.querySelectorAll('.timepicker');
+  const instances = M.Timepicker.init(elems, options);
 }
 
-/// Update timer
+// Update timer
 function updateTimer() {
   setInterval(() => {
     for (let i = 0; i !== numTimers; i += 1) {
@@ -178,6 +199,10 @@ function updateTimer() {
     }
   }, 1000);
 }
+
+/* function deleteReminder() {
+
+} */
 
 const form = document.getElementById('form');
 form.addEventListener('submit', addNewTimer);
