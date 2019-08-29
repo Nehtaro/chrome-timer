@@ -9,8 +9,28 @@ Simple Greeting Dashboard
   <link rel="stylesheet" type="text/css" media="screen" href="main.css" />
 </head>
 <body>
-  <h1>Hello World</h1>
-  <h1>Kassandra World</h1>
+
+  <div>
+
+    <form id="form">
+      <div>
+        <label>Title:</label>
+        <input type="text" id="title" name="title"><br>
+      <div>
+      <div>
+        <label>Description:</label>
+        <input type="text" id="description" name="description"><br>
+      </div>
+      <div>
+        <label>Enter a date and time:</label>
+        <input id="datetime" type="datetime-local" name="datetime" value=""><br>
+      </div>
+      <div class="button">
+        <button type="submit">Set your reminder</button>
+      </div>
+    </form>
+
+  </div>
 
    <!-- My code will go here -->
    <script src="main.js"></script>
