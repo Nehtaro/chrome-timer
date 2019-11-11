@@ -26,6 +26,11 @@ h3#form_header {
 }
 li.collection-item {
   padding-top: 20px !important;
+  border: 1px solid #e0e0e0 !important;
+  margin-bottom: 20px !important;
+}
+.collection {
+  border: none !important;
 }
 .collection .collection-item.avatar .secondary-content {
   top: 40px !important;
